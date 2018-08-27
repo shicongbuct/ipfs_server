@@ -1,4 +1,4 @@
-var serverUrl = "http://127.0.0.1:3000"
+var serverUrl = "http://127.0.0.1:3000";
 
 var upload_btn = document.getElementById("upload_btn");
 upload_btn.addEventListener('click', function() {
