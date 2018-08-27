@@ -1,0 +1,6 @@
+logs/
+.idea/
+node_modules/
+uploads/
+public/download_tmp/
+.DS_Store

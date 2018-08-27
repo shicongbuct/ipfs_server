@@ -1,0 +1,19 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.container {
+	border: 1px solid #000;
+	padding: 20px
+}
+
+table.file_list_result td{
+    padding: 10px;
+}
+
+
