@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const TABLE_DEFINE = require("../model/table");
 const StorageRenter = TABLE_DEFINE.StorageRenter;
-const StorageFarmer = TABLE_DEFINE.StorageFarmer;
 const ipfsAPI = require('ipfs-api');
 var ipfs = ipfsAPI('/ip4/127.0.0.1/tcp/5002');
 

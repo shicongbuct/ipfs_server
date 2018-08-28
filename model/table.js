@@ -58,6 +58,18 @@ table.StorageFarmer = sequelize.define("t_storage_farmer", {
 	saveSize: {
 		type: Sequelize.INTEGER
 	},
+    storageMax: {
+	    type: Sequelize.INTEGER
+    },
+    numObjects: {
+	    type: Sequelize.INTEGER
+    },
+    rateIn: {
+	    type: Sequelize.STRING
+    },
+    rateOut: {
+	    type: Sequelize.STRING
+    },
 	measureTime: {
 		type: Sequelize.DATE,
 		defaultValue: Sequelize.NOW
