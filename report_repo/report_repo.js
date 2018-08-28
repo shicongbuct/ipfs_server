@@ -1,7 +1,8 @@
 const process = require('child_process');
 const request = require('request');
 
-const reportServerUrl = '39.106.106.129:3000/checker/repo';
+const reportServerUrl = 'http://39.106.106.129:3000/checker/repo';
+
 
 process.exec('ipfs repo stat',function (error, stdout, stderr) {
     if (error !== null) console.log('exec error: ' + error);

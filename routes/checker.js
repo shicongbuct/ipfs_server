@@ -7,7 +7,7 @@ router.get('/', function (ctx, next) {
 });
 
 router.post('/repo', function (ctx, next) {
-  let body = ctx.req.body;
+  let body = ctx.request.body;
   console.log(body);
   ctx.body = 'this is a repo stat response, success';
 });
