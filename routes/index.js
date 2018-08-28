@@ -6,7 +6,7 @@ const TABLE_DEFINE = require("../model/table");
 const StorageRenter = TABLE_DEFINE.StorageRenter;
 const StorageFarmer = TABLE_DEFINE.StorageFarmer;
 const ipfsAPI = require('ipfs-api');
-var ipfs = ipfsAPI('/ip4/127.0.0.1/tcp/5001');
+var ipfs = ipfsAPI('/ip4/127.0.0.1/tcp/5002');
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
