@@ -2,7 +2,7 @@ const process = require('child_process');
 const request = require('request');
 const reportServerUrl = 'http://39.106.106.129:3000/checker/repo';
 process.exec('uci get sn.@sn[0].sn', function (err, stdout, stderr) {
-    let resObj = {};
+    var resObj = {};
     if (stderr) {
         console.log('cannot get boxSN');
     } else if (stdout) {
@@ -10,9 +10,9 @@ process.exec('uci get sn.@sn[0].sn', function (err, stdout, stderr) {
     }
     process.exec('ipfs repo stat',function (error, stdout, stderr) {
         if (error !== null) console.log('exec error: ' + error);
-        let repoSizeRes = stdout.match(/RepoSize:\s+(\d+)/g);
-        let StorageMaxRes = stdout.match(/StorageMax:\s+(\d+)/g);
-        let NumObjectsRes = stdout.match(/NumObjects:\s+(\d+)/g);
+        var repoSizeRes = stdout.match(/RepoSize:\s+(\d+)/g);
+        var StorageMaxRes = stdout.match(/StorageMax:\s+(\d+)/g);
+        var NumObjectsRes = stdout.match(/NumObjects:\s+(\d+)/g);
 
         resObj.storageMax = parserFormat(StorageMaxRes, 'StorageMax');
         resObj.repoSize = parserFormat(repoSizeRes, 'RepoSize');
@@ -28,8 +28,8 @@ process.exec('uci get sn.@sn[0].sn', function (err, stdout, stderr) {
                 sendToServer(resObj);
                 return false
             }
-            let RateInRes = stdout.match(/RateIn:\s+(.*)/g);
-            let RateOutRes = stdout.match(/RateOut:\s+(.*)/g);
+            var RateInRes = stdout.match(/RateIn:\s+(.*)/g);
+            var RateOutRes = stdout.match(/RateOut:\s+(.*)/g);
             resObj.rateIn = parserFormat(RateInRes, 'RateIn');
             resObj.rateOut = parserFormat(RateOutRes, 'RateOut');
             resObj.isDaemon = true;
@@ -56,7 +56,7 @@ function sendToServer(resObj) {
 function parserFormat(resArr, checkString, returnType) {
     if (!resArr || resArr.length === 0) return false;
     if (resArr[0]) {
-        let arr = resArr[0].split(':');
+        var arr = resArr[0].split(':');
         if (arr[0] === checkString ) {
             return arr[1].trim();
         }

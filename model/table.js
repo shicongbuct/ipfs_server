@@ -56,13 +56,13 @@ table.StorageFarmer = sequelize.define("t_storage_farmer", {
 		type: Sequelize.STRING
 	},
 	saveSize: {
-		type: Sequelize.INTEGER
+		type: Sequelize.BIGINT
 	},
     storageMax: {
-	    type: Sequelize.INTEGER
+	    type: Sequelize.BIGINT
     },
     numObjects: {
-	    type: Sequelize.INTEGER
+	    type: Sequelize.BIGINT
     },
     rateIn: {
 	    type: Sequelize.STRING
