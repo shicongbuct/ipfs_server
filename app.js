@@ -1,14 +1,14 @@
-const Koa = require('koa')
-const app = new Koa()
-const views = require('koa-views')
-const json = require('koa-json')
-const onerror = require('koa-onerror')
-const bodyparser = require('koa-bodyparser')
+const Koa = require('koa');
+const app = new Koa();
+const views = require('koa-views');
+const json = require('koa-json');
+const onerror = require('koa-onerror');
+const bodyparser = require('koa-bodyparser');
 const cors = require('koa2-cors');
-const logger = require('koa-logger')
+const logger = require('koa-logger');
 
-const index = require('./routes/index')
-const checker = require('./routes/checker')
+const index = require('./routes/index');
+const checker = require('./routes/checker');
 
 // error handler
 onerror(app)
@@ -54,4 +54,4 @@ app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
 });
 
-module.exports = app
+module.exports = app;
