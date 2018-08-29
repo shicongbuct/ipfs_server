@@ -5,33 +5,45 @@ const json = require('koa-json');
 const onerror = require('koa-onerror');
 const bodyparser = require('koa-bodyparser');
 const cors = require('koa2-cors');
-const logger = require('koa-logger');
-
+//const logger = require('koa-logger');
+const logUtil = require('./utils/log_util');
 const index = require('./routes/index');
 const checker = require('./routes/checker');
 
 // error handler
-onerror(app)
+onerror(app);
 
 // middlewares
 app.use(bodyparser({
   enableTypes:['json', 'form', 'text']
-}))
-app.use(json())
-app.use(logger())
+}));
+app.use(json());
+// logger
+app.use(async (ctx, next) => {
+    const start = new Date();
+    let ms;
+    try {
+        await next();
+        ms = new Date() - start;
+        logUtil.logResponse(ctx, ms);
+    } catch (error) {
+        ms = new Date() - start;
+        logUtil.logError(ctx, error, ms);
+    }
+});
 app.use(require('koa-static')(__dirname + '/public'))
 
 app.use(views(__dirname + '/views', {
   extension: 'pug'
-}))
+}));
 
 // logger
 app.use(async (ctx, next) => {
-  const start = new Date()
-  await next()
-  const ms = new Date() - start
-  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
-})
+  const start = new Date();
+  await next();
+  const ms = new Date() - start;
+  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
+});
 
 // cors
 app.use(cors({

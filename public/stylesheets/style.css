@@ -16,4 +16,8 @@ table.file_list_result td{
     padding: 10px;
 }
 
+.del, .download{
+    cursor: pointer;
+}
+
 
