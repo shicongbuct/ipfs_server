@@ -21,7 +21,8 @@ router.post('/repo', async function (ctx, next) {
       storageMax: body.storageMax,
       numObjects: body.numObjects,
       rateIn: body.rateIn,
-      rateOut: body.rateOut
+      rateOut: body.rateOut,
+      isDaemon: body.isDaemon
   });
    console.log(saveRes);
   ctx.body = 'this is a repo stat response, success';

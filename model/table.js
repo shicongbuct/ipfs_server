@@ -55,6 +55,9 @@ table.StorageFarmer = sequelize.define("t_storage_farmer", {
 	boxSN: {
 		type: Sequelize.STRING
 	},
+    isDaemon: {
+	    type: Sequelize.BOOLEAN
+    },
 	saveSize: {
 		type: Sequelize.BIGINT
 	},
