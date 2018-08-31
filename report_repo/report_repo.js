@@ -41,7 +41,8 @@ function report() {
         });
     });
 }
-setInterval(report, 2000);
+report();
+setInterval(report, 24 * 60 * 60 * 1000);
 function sendToServer(resObj) {
     var options = {
         method: "POST",
