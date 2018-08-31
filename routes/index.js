@@ -5,7 +5,8 @@ const path = require('path');
 const TABLE_DEFINE = require("../model/table");
 const StorageRenter = TABLE_DEFINE.StorageRenter;
 const ipfsAPI = require('ipfs-api');
-var ipfs = ipfsAPI('/ip4/127.0.0.1/tcp/5002');
+const config = require('../config/index');
+var ipfs = ipfsAPI({host: config.ipfsHost, port: '5001', protocol: 'http'})
 const logger = require("../utils/log_util");
 
 var storage = multer.diskStorage({
@@ -48,6 +49,7 @@ router.get('/file_list', async (ctx, next) => {
     if (!ctx.query.account) ctx.body = "account is undefined";
     logger.info(`user ${ctx.query.account} request get file list`);
     let resJson = await getFileList(ctx.query.account);
+    if (!resJson) ctx.body = '';
     ctx.response.type = 'json';
     ctx.body = resJson;
 });
@@ -121,7 +123,7 @@ router.get('/', async (ctx, next) => {
 async function getFileList(account) {
     let resJson = {data: []};
     let recordList = await StorageRenter.findAll({"where": {"account" : account}});
-    if (!recordList.length) ctx.body = '';
+    if (!recordList.length) return "";
     for (let record of recordList) {
         let tmp_obj = {};
         data = record.dataValues;

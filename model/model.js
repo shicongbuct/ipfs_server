@@ -1,8 +1,10 @@
 var Sequelize = require('sequelize');
+var config = require('../config/index');
 
 const APP = "promoserver";
+const psqlHost = config.psqlHost;
 var sequelize = new Sequelize(APP, APP, `${APP}`, {
-    host: "localhost",
+    host: psqlHost,
     logging: false,
     define: {
         freezeTableName: true,
