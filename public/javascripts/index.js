@@ -1,5 +1,5 @@
 //var serverUrl = "http://39.106.106.129:3000";
-var serverUrl = "http://127.0.0.1:3000";
+//var serverUrl = "http://127.0.0.1:3000";
 
 var upload_btn = document.getElementById("upload_btn");
 upload_btn.addEventListener('click', function() {
@@ -17,7 +17,7 @@ upload_btn.addEventListener('click', function() {
 	var form = new FormData();
 	form.append('upload_file', file);
 	$.ajax({
-		url: serverUrl + "/upload?account=" + account.value,
+		url: "/upload?account=" + account.value,
 		type: 'POST',
 		data: form,
 		contentType: false,
@@ -45,7 +45,7 @@ file_list.addEventListener('click', function () {
         return false;
     }
     $.ajax({
-        url: serverUrl + "/file_list?account=" + account.value,
+        url: "/file_list?account=" + account.value,
         type: 'GET',
         success: function (data) {
         	if (!data.data) return false;
@@ -85,7 +85,7 @@ function bind_delete_event() {
         }
         var fileName = $(this).siblings('td.fileName').text();
 		$.ajax({
-			url: serverUrl + '/delete_file?account=' + account.value + '&fileName=' + fileName,
+			url: '/delete_file?account=' + account.value + '&fileName=' + fileName,
 			type: 'GET',
 			success: function (data) {
 				if (data === "ok") {
@@ -110,10 +110,10 @@ function bind_download_event() {
         }
         var fileName = $(this).siblings('td.fileName').text();
         $.ajax({
-            url: serverUrl + '/download_file?account=' + account.value + '&fileName=' + fileName,
+            url: '/download_file?account=' + account.value + '&fileName=' + fileName,
             type: 'GET',
             success: function (data) {
-                var url = serverUrl + data.url;
+                var url = data.url;
                 var id = 'file_download' + (+new Date);
                 var dom = '<div><a href="' + url + '" id="' + id + '" download="' + data.fileName + '" target="_blank">下载： ' + data.fileName + '</a></div>';
                 $("body").append(dom);
