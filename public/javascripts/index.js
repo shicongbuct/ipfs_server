@@ -23,7 +23,16 @@ upload_btn.addEventListener('click', function() {
 		contentType: false,
 		processData: false,
 		success: function (data) {
-			console.log(data)
+			console.log(data);
+			if (data === "already exist") {
+			    alert("文件已存在");
+            } else if (data === "failed") {
+			    alert("文件上传失败");
+            } else if (data === "ok") {
+			    alert("文件上传成功");
+            } else {
+			    alert("未知错误");
+            }
 		}
 	});
 });
@@ -68,6 +77,7 @@ function formatFileSize(originFileSize) {
 
 function bind_delete_event() {
 	$('table.file_list_result').find('.del').on("click", function() {
+	    var that = $(this);
         var account = document.getElementById("account");
         if (!account.value) {
             alert('请先填写用户名');
@@ -78,7 +88,14 @@ function bind_delete_event() {
 			url: serverUrl + '/delete_file?account=' + account.value + '&fileName=' + fileName,
 			type: 'GET',
 			success: function (data) {
-				
+				if (data === "ok") {
+				    alert("删除成功");
+				    that.closest("tr").remove();
+                } else if (data === "failed") {
+				    alert("删除失败");
+                } else {
+				    alert("未知错误");
+                }
             }
 		});
 	})

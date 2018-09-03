@@ -24,6 +24,20 @@ router.post('/upload', upload.single('upload_file'), async (ctx, next) => {
 	if (!ctx.query.account) ctx.body = "account is undefined";
     let filePath = path.resolve('./uploads/' + ctx.req.file.filename);
     logger.info(`user: ${ctx.query.account} upload file: ${ctx.req.file.filename}`);
+
+    // check if the file already have.
+    exist = await StorageRenter.findOne({
+        where: {
+            status: 'active',
+            account: ctx.query.account,
+            fileName: ctx.req.file.filename
+        }
+    });
+    console.log(exist);
+    if (exist) {
+        ctx.body = "already exist";
+        return;
+    }
     try {
         let file = fs.readFileSync(filePath);
         let ipfs_hash = await ipfs.add(file);
