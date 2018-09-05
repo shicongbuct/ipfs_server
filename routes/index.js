@@ -56,10 +56,11 @@ router.get('/merge', async (ctx, next) => {
     let filename = ctx.query.filename;
     let targetUrl = "";
     haveOrMakeFile("./uploads/merge");
-
-    if (ctx.query.isSingleChunk) {
-        targetUrl = path.resolve("./uploads/merge" + filename);
+    if (ctx.query.isSingleChunk === "single") {
+        console.log('single');
+        targetUrl = path.resolve("./uploads/merge/" + filename);
     } else {
+        console.log('multi');
         let dirPath = tmpDir(md5);
         let chunkList = fs.readdirSync(dirPath);
         let urlList = getChunkUrlList(dirPath, chunkList.length);

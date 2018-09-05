@@ -189,8 +189,8 @@ uploader.on( 'uploadProgress', function( file, percentage ) {
 
 uploader.on( 'uploadSuccess', function( file ) {
     console.log(file);
-    var isSingleChunk = false;
-    if (file.size <= chunkSize) isSingleChunk = true;
+    var isSingleChunk = "multi";
+    if (file.size <= chunkSize) isSingleChunk = "single";
     $.ajax({
         url : '/merge?md5=' + file.md5 + '&filename=' + file.name + '&account=' + file.account + '&size=' + file.size + '&isSingleChunk=' + isSingleChunk,
         type: "GET",
