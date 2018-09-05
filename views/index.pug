@@ -5,7 +5,7 @@ block content
 	.container
 		.title 用户信息
 		input(type="text" id="account" placeholder="请输入账户名")
-	.container
+	.container(style="display: none")
 		.title 上传文件的部分
 		input(type="file" id="upload_file_input" value="")
 		button(id="upload_btn") 上传文件
@@ -13,4 +13,12 @@ block content
 		.title 列出用户上传的文件的列表
 		button(id="file_list") 查询列表
 		table.file_list_result
+	.container
+		.title 上传文件的部分
+		.wu-example(id="uploader")
+			.uploader-list(id="thelist")
+			.btns
+				div(id="picker") 选择文件
+				button.btn.btn-default(id="ctlBtn") 开始上传
+
 	script(src='/javascripts/index.js', type="text/javascript")

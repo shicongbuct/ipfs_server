@@ -122,3 +122,85 @@ function bind_download_event() {
         });
 	});
 }
+
+var uploader = WebUploader.create({
+    server: '/chunk_upload',
+    pick: '#picker',
+    resize: false,
+    chunked: true,
+    chunkSize: 5 * 1024 * 1024,
+    chunkRetry: 2
+});
+
+// 当有文件被添加进队列的时候
+uploader.on( 'fileQueued', function( file ) {
+    $list = $("#thelist");
+    $list.append( '<div id="' + file.id + '" class="item">' +
+        '<h4 class="info">' + file.name + '</h4>' +
+        '<p class="state">等待上传...</p>' +
+        '</div>' );
+});
+
+$("#ctlBtn").click(function (event) {
+    var files = uploader.getFiles();
+    var account = document.getElementById("account");
+    if (!files.length) {
+        alert("请先选择上传文件");
+        return false
+    }
+    if (!account.value) {
+        alert('请先填写用户名');
+        return false;
+    }
+    files.forEach(function(item) {
+        uploader.md5File(item, 0, 1024 * 1024)
+                .progress(function(percentage) {console.log("percentage", percentage)})
+                .then(function (val) {
+                    console.log(item);
+                    uploader.option("formData", {"md5": val, "account": account.value});
+                    if ($('#'+item.id).find('p.state').text() === "已上传") {
+                        return false;
+                    } else {
+                        item.md5 = val;
+                        item.account = account.value;
+                        uploader.upload(item);
+                    }
+                });
+    });
+});
+
+// 文件上传过程中创建进度条实时显示。
+uploader.on( 'uploadProgress', function( file, percentage ) {
+    var $li = $( '#'+file.id ),
+        $percent = $li.find('.progress .progress-bar');
+
+    // 避免重复创建
+    if ( !$percent.length ) {
+        $percent = $('<div class="progress progress-striped active">' +
+            '<div class="progress-bar" role="progressbar" style="width: 0%">' +
+            '</div>' +
+            '</div>').appendTo( $li ).find('.progress-bar');
+    }
+
+    $li.find('p.state').text('上传中');
+    $percent.css( 'width', percentage * 100 + '%' );
+});
+
+uploader.on( 'uploadSuccess', function( file ) {
+    console.log(file);
+    $.ajax({
+        url : '/merge?md5=' + file.md5 + '&filename=' + file.name + '&account=' + file.account + '&size=' + file.size,
+        type: "GET",
+        success: function(data) {
+            $( '#'+file.id ).find('p.state').text('已上传');
+        }
+    });
+});
+
+uploader.on( 'uploadError', function( file ) {
+    $( '#'+file.id ).find('p.state').text('上传出错');
+});
+
+uploader.on( 'uploadComplete', function( file ) {
+    $( '#'+file.id ).find('.progress').fadeOut();
+});

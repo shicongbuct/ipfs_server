@@ -8,17 +8,121 @@ const ipfsAPI = require('ipfs-api');
 const config = require('../config/index');
 var ipfs = ipfsAPI({host: config.ipfsHost, port: '5001', protocol: 'http'})
 const logger = require("../utils/log_util");
+const sleep = require("../utils/sleep");
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './uploads/')
+      var md5 = ""
+      if (!req.body || !req.body.md5) {
+          md5 = "";
+          return false;
+      } else {
+          md5 = req.body.md5;
+      }
+      cb(null, tmpDir(md5));
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname)
+      var filename = ""
+      if (!req.body || !req.body.chunk) {
+          filename = file.originalname;
+      } else {
+          filename = req.body.chunk;
+      }
+      cb(null, filename);
   }
 });
 
 var upload = multer({ storage: storage });
+
+router.post('/chunk_upload', upload.single('file'), async (ctx, next) => {
+    if (!ctx.req.body || !ctx.req.body.md5) {
+        ctx.body = "md5 not exist";
+        return;
+    }
+    ctx.body = "ok";
+});
+
+router.get('/merge', async (ctx, next) => {
+    if (!ctx.query.md5 || !ctx.query.filename || !ctx.query.account) {
+        ctx.body = 'md5 or filename or account not exist';
+        return
+    }
+    let md5 = ctx.query.md5;
+    let filename = ctx.query.filename;
+    haveOrMakeFile("./uploads/merge");
+
+    let dirPath = tmpDir(md5);
+    let chunkList = fs.readdirSync(dirPath);
+    let urlList = getChunkUrlList(dirPath, chunkList.length);
+    let targetUrl = path.resolve('./uploads/merge/' + filename);
+    let targetStream = fs.createWriteStream(targetUrl, {flags: "w+"});
+
+    try {
+        await readStream(urlList, targetStream, dirPath);
+        let file = fs.readFileSync(targetUrl);
+        let ipfs_hash = await ipfs.add(file);
+        var renter = {
+            account: ctx.query.account,
+            fileName: filename,
+            ipfsHash: ipfs_hash[0].hash,
+            status: 'active',
+            fileSize: ctx.query.size,
+            md5: md5
+        };
+        await StorageRenter.create(renter);
+        fs.unlinkSync(targetUrl);
+        logger.info(`success save file ${filename} for user ${ctx.query.account}`);
+        ctx.body = 'merge ok'
+    } catch (error) {
+        logger.error(`Error: upload file failed with error: ${error}`);
+        if (fs.existsSync(targetUrl)) fs.unlinkSync(targetUrl);
+        ctx.body = 'failed';
+    }
+});
+
+async function readStream (urlList, targetStream, tmpDir) {
+    return new Promise((resolve, reject) => {
+        function writeRecursive () {
+            let path = urlList.shift();
+            let originStream = fs.createReadStream(path);
+            originStream.pipe(targetStream, {end: false});
+            originStream.on("end", function () {
+                // 删除文件
+                fs.unlinkSync(path);
+                if (urlList.length > 0) {
+                    writeRecursive(urlList);
+                } else {
+                    fs.rmdirSync(tmpDir);
+                    resolve();
+                }
+            });
+        }
+        writeRecursive()
+    });
+}
+
+function haveOrMakeFile(path) {
+    if (!fs.existsSync(path)) {
+        fs.mkdirSync(path);
+    }
+    return path;
+}
+
+function getChunkUrlList(dir, maxIndex) {
+    let urlList = [];
+    for (let i = 0; i < maxIndex; i++) {
+        urlList.push(dir + "/" + i);
+    }
+    return urlList
+}
+
+function tmpDir(name) {
+    let path = "./uploads/" + name;
+    if (!fs.existsSync(path)) {
+        fs.mkdirSync(path);
+    }
+    return path;
+}
 
 router.post('/upload', upload.single('upload_file'), async (ctx, next) => {
 	if (!ctx.query.account) ctx.body = "account is undefined";

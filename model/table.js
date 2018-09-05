@@ -33,6 +33,9 @@ table.StorageRenter = sequelize.define("t_storage_renter", {
     account: {
         type: Sequelize.STRING
     },
+    md5: {
+        type: Sequelize.STRING
+    },
     fileName: {
         type: Sequelize.STRING
     },

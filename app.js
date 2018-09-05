@@ -31,7 +31,7 @@ app.use(async (ctx, next) => {
         logUtil.logError(ctx, error, ms);
     }
 });
-app.use(require('koa-static')(__dirname + '/public'))
+app.use(require('koa-static')(__dirname + '/public'));
 
 app.use(views(__dirname + '/views', {
   extension: 'pug'
