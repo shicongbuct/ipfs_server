@@ -1,5 +1,6 @@
 //var serverUrl = "http://39.106.106.129:3000";
 //var serverUrl = "http://127.0.0.1:3000";
+var chunkSize = 5 * 1024 * 1024;
 
 var upload_btn = document.getElementById("upload_btn");
 upload_btn.addEventListener('click', function() {
@@ -128,7 +129,7 @@ var uploader = WebUploader.create({
     pick: '#picker',
     resize: false,
     chunked: true,
-    chunkSize: 5 * 1024 * 1024,
+    chunkSize: chunkSize,
     chunkRetry: 2
 });
 
@@ -188,8 +189,10 @@ uploader.on( 'uploadProgress', function( file, percentage ) {
 
 uploader.on( 'uploadSuccess', function( file ) {
     console.log(file);
+    var isSingleChunk = false;
+    if (file.size <= chunkSize) isSingleChunk = true;
     $.ajax({
-        url : '/merge?md5=' + file.md5 + '&filename=' + file.name + '&account=' + file.account + '&size=' + file.size,
+        url : '/merge?md5=' + file.md5 + '&filename=' + file.name + '&account=' + file.account + '&size=' + file.size + '&isSingleChunk=' + isSingleChunk,
         type: "GET",
         success: function(data) {
             $( '#'+file.id ).find('p.state').text('已上传');

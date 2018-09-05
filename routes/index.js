@@ -19,7 +19,12 @@ var storage = multer.diskStorage({
       } else {
           md5 = req.body.md5;
       }
-      cb(null, tmpDir(md5));
+      if (!req.body.chunks) {
+          haveOrMakeFile("./uploads/merge");
+          cb(null, "./uploads/merge")
+      } else {
+          cb(null, tmpDir(md5));
+      }
   },
   filename: function (req, file, cb) {
       var filename = ""
@@ -49,28 +54,22 @@ router.get('/merge', async (ctx, next) => {
     }
     let md5 = ctx.query.md5;
     let filename = ctx.query.filename;
+    let targetUrl = "";
     haveOrMakeFile("./uploads/merge");
 
-    let dirPath = tmpDir(md5);
-    let chunkList = fs.readdirSync(dirPath);
-    let urlList = getChunkUrlList(dirPath, chunkList.length);
-    let targetUrl = path.resolve('./uploads/merge/' + filename);
-    let targetStream = fs.createWriteStream(targetUrl, {flags: "w+"});
+    if (ctx.query.isSingleChunk) {
+        targetUrl = path.resolve("./uploads/merge" + filename);
+    } else {
+        let dirPath = tmpDir(md5);
+        let chunkList = fs.readdirSync(dirPath);
+        let urlList = getChunkUrlList(dirPath, chunkList.length);
+        targetUrl = path.resolve('./uploads/merge/' + filename);
+        let targetStream = fs.createWriteStream(targetUrl, {flags: "w+"});
+        await readStream(urlList, targetStream, dirPath);
+    }
 
     try {
-        await readStream(urlList, targetStream, dirPath);
-        let file = fs.readFileSync(targetUrl);
-        let ipfs_hash = await ipfs.add(file);
-        var renter = {
-            account: ctx.query.account,
-            fileName: filename,
-            ipfsHash: ipfs_hash[0].hash,
-            status: 'active',
-            fileSize: ctx.query.size,
-            md5: md5
-        };
-        await StorageRenter.create(renter);
-        fs.unlinkSync(targetUrl);
+        await saveToIpfs(targetUrl, ctx.query.account, filename, ctx.query.size, md5);
         logger.info(`success save file ${filename} for user ${ctx.query.account}`);
         ctx.body = 'merge ok'
     } catch (error) {
@@ -99,6 +98,21 @@ async function readStream (urlList, targetStream, tmpDir) {
         }
         writeRecursive()
     });
+}
+
+async function saveToIpfs (targetUrl, account, filename, size, md5) {
+    let file = fs.readFileSync(targetUrl);
+    let ipfs_hash = await ipfs.add(file);
+    var renter = {
+        account: account,
+        fileName: filename,
+        ipfsHash: ipfs_hash[0].hash,
+        status: 'active',
+        fileSize: size,
+        md5: md5
+    };
+    await StorageRenter.create(renter);
+    fs.unlinkSync(targetUrl);
 }
 
 function haveOrMakeFile(path) {
