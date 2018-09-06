@@ -10,6 +10,10 @@ var ipfs = ipfsAPI({host: config.ipfsHost, port: '5001', protocol: 'http'})
 const logger = require("../utils/log_util");
 const sleep = require("../utils/sleep");
 
+const tmpFileSaveTime = 2 * 60 * 60 * 1000; // 2 hours
+haveOrMakeDir("./uploads");
+haveOrMakeDir("./public/download_tmp");
+
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
       var md5 = ""
@@ -20,7 +24,7 @@ var storage = multer.diskStorage({
           md5 = req.body.md5;
       }
       if (!req.body.chunks) {
-          haveOrMakeFile("./uploads/merge");
+          haveOrMakeDir("./uploads/merge");
           cb(null, "./uploads/merge")
       } else {
           cb(null, tmpDir(md5));
@@ -55,12 +59,10 @@ router.get('/merge', async (ctx, next) => {
     let md5 = ctx.query.md5;
     let filename = ctx.query.filename;
     let targetUrl = "";
-    haveOrMakeFile("./uploads/merge");
+    haveOrMakeDir("./uploads/merge");
     if (ctx.query.isSingleChunk === "single") {
-        console.log('single');
         targetUrl = path.resolve("./uploads/merge/" + filename);
     } else {
-        console.log('multi');
         let dirPath = tmpDir(md5);
         let chunkList = fs.readdirSync(dirPath);
         let urlList = getChunkUrlList(dirPath, chunkList.length);
@@ -116,7 +118,7 @@ async function saveToIpfs (targetUrl, account, filename, size, md5) {
     fs.unlinkSync(targetUrl);
 }
 
-function haveOrMakeFile(path) {
+function haveOrMakeDir(path) {
     if (!fs.existsSync(path)) {
         fs.mkdirSync(path);
     }
@@ -237,6 +239,7 @@ router.get('/download_file', async (ctx, next) => {
         let ipfsHash = file.dataValues.ipfsHash;
         let data = await ipfs.files.get(ipfsHash);
         fs.writeFileSync('./public/download_tmp/' + file.fileName, data[0].content);
+        setTimeout(removeTmpFileInTime, tmpFileSaveTime, file.fileName);
         ctx.response.type = 'json';
         resJson.url = '/download_tmp/' + file.fileName;
         resJson.fileName = file.fileName;
@@ -252,6 +255,16 @@ router.get('/', async (ctx, next) => {
 	    title: 'ipfs api 调用demo'
 	})
 });
+
+function removeTmpFileInTime(filename) {
+    try {
+        let filePath = "./public/download_tmp/" + filename;
+        fs.unlinkSync(filePath);
+        logger.info("success remove file" + filename);
+    } catch (error) {
+        logger.info("remove tmp file with error:" + error);
+    }
+}
 
 async function getFileList(account) {
     let resJson = {data: []};
