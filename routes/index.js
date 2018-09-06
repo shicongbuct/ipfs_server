@@ -238,10 +238,12 @@ router.get('/download_file', async (ctx, next) => {
     try {
         let ipfsHash = file.dataValues.ipfsHash;
         let data = await ipfs.files.get(ipfsHash);
-        fs.writeFileSync('./public/download_tmp/' + file.fileName, data[0].content);
-        setTimeout(removeTmpFileInTime, tmpFileSaveTime, file.fileName);
+        let accountFileDir = './public/download_tmp/' + ctx.query.account;
+        haveOrMakeDir(accountFileDir);
+        fs.writeFileSync(accountFileDir + '/' + file.fileName, data[0].content);
+        setTimeout(removeTmpFileInTime, tmpFileSaveTime,accountFileDir, file.fileName);
         ctx.response.type = 'json';
-        resJson.url = '/download_tmp/' + file.fileName;
+        resJson.url = '/download_tmp/' + ctx.query.account + '/' + file.fileName;
         resJson.fileName = file.fileName;
         ctx.body = resJson;
     } catch(error) {
@@ -256,9 +258,10 @@ router.get('/', async (ctx, next) => {
 	})
 });
 
-function removeTmpFileInTime(filename) {
+function removeTmpFileInTime(accountFileDir, filename) {
+    haveOrMakeDir(accountFileDir);
     try {
-        let filePath = "./public/download_tmp/" + filename;
+        let filePath = accountFileDir + '/' + filename;
         fs.unlinkSync(filePath);
         logger.info("success remove file" + filename);
     } catch (error) {
