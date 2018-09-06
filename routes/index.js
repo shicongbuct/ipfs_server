@@ -86,12 +86,12 @@ async function readStream (urlList, targetStream, tmpDir) {
     return new Promise((resolve, reject) => {
         function writeRecursive () {
             let path = urlList.shift();
-            logger.info("debug path:" , path);
+            logger.info("debug path:" + path);
             let originStream = fs.createReadStream(path);
             originStream.pipe(targetStream, {end: false});
             originStream.on("end", function () {
                 // 删除文件
-                logger.info("debug end: " , path);
+                logger.info("debug end: " + path);
                 fs.unlinkSync(path);
                 if (urlList.length > 0) {
                     writeRecursive(urlList);
