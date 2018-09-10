@@ -158,7 +158,7 @@ $("#ctlBtn").click(function (event) {
                 .progress(function(percentage) {console.log("percentage", percentage)})
                 .then(function (val) {
                     console.log(item);
-                    uploader.option("formData", {"md5": val, "account": account.value});
+                    uploader.option("formData", {"account": account.value});
                     if ($('#'+item.id).find('p.state').text() === "已上传") {
                         return false;
                     } else {
