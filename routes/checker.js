@@ -15,6 +15,14 @@ router.post('/repo', async function (ctx, next) {
       console.log('Error, not have SN code');
       ctx.body = 'not have SN code';
    }
+   if (!body.isDaemon) {
+       let saveRes = await  StorageFarmer.create({
+           boxSN: body.boxSN,
+           isDaemon: false
+       });
+       ctx.body = "ok, ipfs off line.";
+       return false;
+   }
   let saveRes = await StorageFarmer.create({
       boxSN: body.boxSN,
       saveSize: body.repoSize,
@@ -25,7 +33,7 @@ router.post('/repo', async function (ctx, next) {
       isDaemon: body.isDaemon
   });
    console.log(saveRes);
-  ctx.body = 'this is a repo stat response, success';
+  ctx.body = 'this is a repo stat response, success check.';
 });
 
 module.exports = router;

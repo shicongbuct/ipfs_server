@@ -20,7 +20,7 @@ function report() {
             resObj.repoSize = parserFormat(repoSizeRes, 'RepoSize');
             resObj.numObjects = parserFormat(NumObjectsRes, 'NumObjects');
             process.exec('ipfs stats bw', function(error, stdout, stderr) {
-                if (/this command must be run in online mode/.test(error)) {
+                if (/api not running/.test(error) || /this command must be run in online mode/.test(error)) {
                     resObj.isDaemon = false;
                     sendToServer(resObj);
                     return false;
