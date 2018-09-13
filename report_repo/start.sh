@@ -1,1 +1,1 @@
-./node_modules/.bin/forever start report_repo.js
+./node_modules/forever/bin/forever start report_repo.js
