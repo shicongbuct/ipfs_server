@@ -1,7 +1,7 @@
 var Sequelize = require('sequelize');
 var config = require('../config/index');
 
-const APP = "promoserver";
+const APP = "ipfs";
 const psqlHost = config.psqlHost;
 var sequelize = new Sequelize(APP, APP, `${APP}`, {
     host: psqlHost,
